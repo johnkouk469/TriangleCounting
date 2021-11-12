@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.4
+# v0.17.1
 
 using Markdown
 using InteractiveUtils
@@ -149,6 +149,9 @@ md"""
 We may benchmark the two alternatives on an input graph, using the `BenchmarkTools` package.
 """
 
+# ╔═╡ b5355127-0219-4da2-ae6f-58f1877029d0
+@benchmark triangle_counting( $A_email )
+
 # ╔═╡ 2486e0df-57b5-4398-931f-347fc1db3cb5
 md"**Do not forget that currently, the masked counting does nothing; you have to fill-in the code. Always check validity of the results, before running benchmarks.**"
 
@@ -247,9 +250,6 @@ end
 
 # ╔═╡ bde09aec-cb4b-4054-9936-c4bfc26b3534
 A_email = tamudata("Arenas", "email")
-
-# ╔═╡ b5355127-0219-4da2-ae6f-58f1877029d0
-@benchmark triangle_counting( $A_email )
 
 # ╔═╡ cdcdb558-ae6d-471a-b06b-e8f5b0a66da9
 if triangle_counting( A_email ) == sequential_masked_triangle_counting( A_email )
