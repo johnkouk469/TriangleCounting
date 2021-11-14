@@ -13,6 +13,33 @@
 #include <time.h>
 #include "mmio.h"
 
+void quicksort(int element_list[], int low, int high){
+	int pivot, value1, value2, temp;
+	if (low < high){
+		pivot = low;
+		value1 = low;
+		value2 = high;
+		while (value1 < value2){
+			while (element_list[value1] <= element_list[pivot] && value1 <= high){
+				value1++;
+			}
+			while (element_list[value2] > element_list[pivot] && value2 >= low){
+				value2--;
+			}
+			if (value1 < value2){
+				temp = element_list[value1];
+				element_list[value1] = element_list[value2];
+				element_list[value2] = temp;
+			}
+		}
+		temp = element_list[value2];
+		element_list[value2] = element_list[pivot];
+		element_list[pivot] = temp;
+		quicksort(element_list, low, value2 - 1);
+		quicksort(element_list, value2 + 1, high);
+	}
+}
+
 void coo2csc(
     int       * const row,       /*!< CSC row start indices */
     int       * const col,       /*!< CSC column indices */
@@ -155,6 +182,10 @@ int main(int argc, char *argv[]){
 
     free(cooFull_row);
     free(cooFull_col);
+
+    for(int i=0; i<N+1; i++){
+        quicksort(csc_row, csc_col[i], csc_col[i+1]-1);
+    }
     
     printf("csc_col: ");
     for(int i=0; i<N+1; i++)
@@ -180,23 +211,37 @@ int main(int argc, char *argv[]){
 
 	for(int j=0; j<N; j++){
         
-        for(int i=csc_col[j]; i<csc_col[j+1]; i++){
-        
-            int nzrangeI = csc_col[i+1]-csc_col[i];
-            int nzrangeJ = csc_col[j+1]-csc_col[j];
-        
-            int rowA[nzrangeI], colA[nzrangeJ];
-        
+        int nzrangeOfColA = csc_col[j+1]-csc_col[j];
+        int colA[nzrangeOfColA];
+        printf("\nj=%d",j);
+        printf("\nnzrangeOfColA: %d \ncolA: ", nzrangeOfColA);
+        for(int y=csc_col[j]; y<csc_col[j+1]; y++){
+            colA[y-csc_col[j]] = csc_row[y];
+            printf("%d ",csc_row[y]);
+        }
+        printf("\n");
+
+        for(int n=csc_col[j]; n<csc_col[j+1]; n++){
+            
+            int i = csc_row[n];
+            /*
+            ** Iterate all the non zero values of matrix A
+            ** A(i,j) !=  0 
+            */
+            printf("\n(i,j)=(%d,%d)\n", i, j);
+
+            int nnzrangeOfRowA = csc_col[i+1]-csc_col[i];       
+            int rowA[nnzrangeOfRowA];
+            printf("\nnnzrangeOfRowA: %d \nrowA: ", nnzrangeOfRowA);        
             for(int x=csc_col[i]; x<csc_col[i+1]; x++){
                 rowA[x-csc_col[i]] = csc_row[x];
+                printf("%d ",csc_row[x]);
             }
+            printf("\n");
+            
         
-            for(int y=csc_col[j]; y<csc_col[j+1]; j++){
-                colA[y-csc_col[j]] = csc_row[y];
-            }
-        
-            // for(int z=0; z<nzrangeI; z++){
-            //     for(int w=0; w<nzrangeJ; w++){
+            // for(int z=0; z<nnzrangeOfRowA; z++){
+            //     for(int w=0; w<nzrangeOfColA; w++){
             //         if(rowA[z]<colA[w]){
             //             break;
             //         }else if(rowA[z]=colA[w]){
@@ -209,9 +254,9 @@ int main(int argc, char *argv[]){
         
             int common = 0;
             int flag = 0;
-                for(int l=0; l<nzrangeI; l++){
+                for(int l=0; l<nnzrangeOfRowA; l++){
                     int counter = 0;
-                    while((counter + flag) < nzrangeJ){
+                    while((counter + flag) < nzrangeOfColA){
                     if(rowA[l] < colA[counter+flag]){
                         counter++;
                         break;
@@ -222,9 +267,9 @@ int main(int argc, char *argv[]){
                         flag++;
                 }
             }
-            c3[j] = common;
-        }
-        
+            c3[j] += common;
+            
+        }        
     }
 
     clock_gettime(CLOCK_MONOTONIC, &stop);
