@@ -1,7 +1,16 @@
-CCILKCC=/usr/local/OpenCilk-9.0.1-Linux/bin/clsang
+CC=gcc
+CILKCC=/usr/local/OpenCilk-9.0.1-Linux/bin/clang
 CFLAGS=-O3
 
 default: all
 
-v3_opencilk:
-	$(CILKCC) $(FLAGS) v3_opencilk_1111.c mmio.c -o v3_opencilk_1111 -fcilkplus
+sequential_masked_triangle_counting:
+	$(CC) $(FLAGS) sequential_masked_triangle_counting.c mmio.c -o sequential_masked_triangle_counting
+
+triangles_opencilk:
+	$(CILKCC) $(FLAGS) triangles_opencilk.c mmio.c -o triangles_opencilk -fcilkplus
+
+all: sequential_masked_triangle_counting triangles_opencilk
+
+clean:
+	rm -f sequential_masked_triangle_counting triangles_opencilk
