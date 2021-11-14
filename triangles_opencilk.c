@@ -210,7 +210,7 @@ int main(int argc, char *argv[]){
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-	for(int j=0; j<N; j++){
+	cilk_for(int j=0; j<N; j++){
         
         int nzrangeOfColA = csc_col[j+1]-csc_col[j];
         int colA[nzrangeOfColA];
