@@ -1,4 +1,4 @@
-CCILKCC=/usr/local/OpenCilk-9.0.1-Linux/bin/c;ang
+CCILKCC=/usr/local/OpenCilk-9.0.1-Linux/bin/clsang
 CFLAGS=-O3
 
 default: all
