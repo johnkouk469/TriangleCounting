@@ -187,14 +187,14 @@ int main(int argc, char *argv[]){
         quicksort(csc_row, csc_col[i], csc_col[i+1]-1);
     }
     
-    printf("csc_col: ");
-    for(int i=0; i<N+1; i++)
-        printf("%d ", csc_col[i]);
-    printf("\ncsc_row: ");
-    for(int i=0; i<2*nnz; i++)
-        printf("%d ", csc_row[i]);
-    printf("\n");
-    printf("nnz: %d\n", nnz);
+    // printf("csc_col: ");
+    // for(int i=0; i<N+1; i++)
+    //     printf("%d ", csc_col[i]);
+    // printf("\ncsc_row: ");
+    // for(int i=0; i<2*nnz; i++)
+    //     printf("%d ", csc_row[i]);
+    // printf("\n");
+    // printf("nnz: %d\n", nnz);
     
 
     int c3[N];
@@ -213,13 +213,13 @@ int main(int argc, char *argv[]){
         
         int nzrangeOfColA = csc_col[j+1]-csc_col[j];
         int colA[nzrangeOfColA];
-        printf("\nj=%d",j);
-        printf("\nnzrangeOfColA: %d \ncolA: ", nzrangeOfColA);
+        // printf("\nj=%d",j);
+        // printf("\nnzrangeOfColA: %d \ncolA: ", nzrangeOfColA);
         for(int y=csc_col[j]; y<csc_col[j+1]; y++){
             colA[y-csc_col[j]] = csc_row[y];
-            printf("%d ",csc_row[y]);
+            // printf("%d ",csc_row[y]);
         }
-        printf("\n");
+        // printf("\n");
 
         for(int n=csc_col[j]; n<csc_col[j+1]; n++){
             
@@ -228,16 +228,16 @@ int main(int argc, char *argv[]){
             ** Iterate all the non zero values of matrix A
             ** A(i,j) !=  0 
             */
-            printf("\n(i,j)=(%d,%d)\n", i, j);
+            // printf("\n(i,j)=(%d,%d)\n", i, j);
 
             int nnzrangeOfRowA = csc_col[i+1]-csc_col[i];       
             int rowA[nnzrangeOfRowA];
-            printf("\nnnzrangeOfRowA: %d \nrowA: ", nnzrangeOfRowA);        
+            // printf("\nnnzrangeOfRowA: %d \nrowA: ", nnzrangeOfRowA);        
             for(int x=csc_col[i]; x<csc_col[i+1]; x++){
                 rowA[x-csc_col[i]] = csc_row[x];
-                printf("%d ",csc_row[x]);
+                // printf("%d ",csc_row[x]);
             }
-            printf("\n");
+            // printf("\n");
             
         
             // for(int z=0; z<nnzrangeOfRowA; z++){
