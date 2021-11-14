@@ -13,33 +13,6 @@
 #include <time.h>
 #include "mmio.h"
 
-void quicksort(int element_list[], int low, int high){
-	int pivot, value1, value2, temp;
-	if (low < high){
-		pivot = low;
-		value1 = low;
-		value2 = high;
-		while (value1 < value2){
-			while (element_list[value1] <= element_list[pivot] && value1 <= high){
-				value1++;
-			}
-			while (element_list[value2] > element_list[pivot] && value2 >= low){
-				value2--;
-			}
-			if (value1 < value2){
-				temp = element_list[value1];
-				element_list[value1] = element_list[value2];
-				element_list[value2] = temp;
-			}
-		}
-		temp = element_list[value2];
-		element_list[value2] = element_list[pivot];
-		element_list[pivot] = temp;
-		quicksort(element_list, low, value2 - 1);
-		quicksort(element_list, value2 + 1, high);
-	}
-}
-
 void coo2csc(
     int       * const row,       /*!< CSC row start indices */
     int       * const col,       /*!< CSC column indices */
@@ -182,11 +155,6 @@ int main(int argc, char *argv[]){
 
     free(cooFull_row);
     free(cooFull_col);
-
-    for(int i=0; i<N+1; i++){
-        quicksort(csc_row, csc_col[i], csc_col[i+1]-1);
-    }
-
     
     printf("csc_col: ");
     for(int i=0; i<N+1; i++)
@@ -210,45 +178,53 @@ int main(int argc, char *argv[]){
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-	for(int j=0; j<N+1; j++){ // i the rows of matrix 1
+	for(int j=0; j<N; j++){
+        
         for(int i=csc_col[j]; i<csc_col[j+1]; i++){
-            
-            // if((csc_col[i+1] > csc_col[i]) && (csc_col[j+1]>csc_col[j])){
-                // create array with the indexes to the rows of the nonzero values for
-                // row i of matrix 1 in the multiplication A*A
-                int nzrangeI = csc_col[i+1]-csc_col[i];
-                int rowOfMatrix1[nzrangeI];
-                for(int k=csc_col[i]; k<csc_col[i+1]; k++){
-                    printf("%d\n",k);
-                    rowOfMatrix1[k-csc_col[i]] = csc_row[k];
+        
+            int nzrangeI = csc_col[i+1]-csc_col[i];
+            int nzrangeJ = csc_col[j+1]-csc_col[j];
+        
+            int rowA[nzrangeI], colA[nzrangeJ];
+        
+            for(int x=csc_col[i]; x<csc_col[i+1]; x++){
+                rowA[x-csc_col[i]] = csc_row[x];
+            }
+        
+            for(int y=csc_col[j]; y<csc_col[j+1]; j++){
+                colA[y-csc_col[j]] = csc_row[y];
+            }
+        
+            // for(int z=0; z<nzrangeI; z++){
+            //     for(int w=0; w<nzrangeJ; w++){
+            //         if(rowA[z]<colA[w]){
+            //             break;
+            //         }else if(rowA[z]=colA[w]){
+            //             c3[j]++;
+            //             printf("common");
+            //             break;
+            //         }
+            //     }
+            // }
+        
+            int common = 0;
+            int flag = 0;
+                for(int l=0; l<nzrangeI; l++){
+                    int counter = 0;
+                    while((counter + flag) < nzrangeJ){
+                    if(rowA[l] < colA[counter+flag]){
+                        counter++;
+                        break;
+                    }else if(rowA[l] == colA[counter+flag]){
+                        common++;
+                        break;
+                    }else
+                        flag++;
                 }
-                // // // create array with the indexes to the rows of the nonzero values for
-                // // // column j of matrix 2 in the multiplication A*A
-                int nzrangeJ = csc_col[j+1]-csc_col[j];
-                int columnOfMatrix2[nzrangeJ];
-                for(int l=csc_col[j]; l<csc_col[j+1]; l++){
-                    printf("%d\n",l);
-                    columnOfMatrix2[l-csc_col[j]] = csc_row[l];
-                }
-                printf("nzrangeI: %d, nzrangeJ: %d\n", nzrangeI, nzrangeJ);
-                for(int w=0; w<nzrangeI; w++){
-                    printf("rowOfMatrix1[w]: %d\n",rowOfMatrix1[w]);
-                    for(int y=0; y<nzrangeJ;y++){
-                        printf("w: %d, rowOfMatrix1[w]: %d, columnOfMatrix2[y]: %d, y: %d\n",w,rowOfMatrix1[w],columnOfMatrix2[y],y);
-                        if(rowOfMatrix1[w]<columnOfMatrix2[y]){
-                            break;
-                        }
-                        if (rowOfMatrix1[w] == columnOfMatrix2[y]){
-                            c3[j]++;
-                            printf("common\n");
-                            break;
-                        }
-                    }
-                }
-            // } 
-            printf("%d, ",i);
+            }
+            c3[j] = common;
         }
-        printf("\n j \n");
+        
     }
 
     clock_gettime(CLOCK_MONOTONIC, &stop);
