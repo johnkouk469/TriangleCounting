@@ -11,7 +11,72 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
 #include "mmio.h"
+
+#define MAX_THREAD 1000
+
+typedef struct {
+    int j;
+    int *csc_row;
+    int *csc_col;
+    int c;
+} parm;
+
+void *C(void *arg) {
+    parm *p = (parm *)arg;
+    int *row = p->csc_row;
+    int *col = p->csc_col;
+    int j = p->j;
+    int nzrangeOfColA = col[j+1]-col[j];
+    int colA[nzrangeOfColA];
+    // printf("\nj=%d",p->j);
+    // printf("\nnzrangeOfColA: %d \ncolA: ", nzrangeOfColA);
+    for(int y=col[j]; y<col[(j)+1]; y++){
+        colA[y-col[j]] = row[y];
+        // printf("%d ",row[y]);
+    }
+    // printf("\n");
+
+    for(int n=col[j]; n<col[(j)+1]; n++){
+            
+        int i = row[n];
+        
+        // Iterate all the non zero values of matrix A
+        // A(i,j) !=  0 
+        
+        // printf("\n(i,j)=(%d,%d)\n", i, j);
+
+        int nnzrangeOfRowA = col[i+1]-col[i];       
+        int rowA[nnzrangeOfRowA];
+        // printf("\nnnzrangeOfRowA: %d \nrowA: ", nnzrangeOfRowA);        
+        for(int x=col[i]; x<col[i+1]; x++){
+            rowA[x-col[i]] = row[x];
+            // printf("%d ",row[x]);
+        }
+        // printf("\n");
+          
+        int common = 0;
+        int flag = 0;
+        for(int l=0; l<nnzrangeOfRowA; l++){
+            int counter = 0;
+            while((counter + flag) < nzrangeOfColA){
+            if(rowA[l] < colA[counter+flag]){
+                counter++;
+                break;
+            }else if(rowA[l] == colA[counter+flag]){
+                common++;
+                break;
+            }else
+                flag++;            
+            }
+        }
+        p->c += common;        
+    }
+
+    // printf("Hello from node %d\n", p->j);
+    pthread_exit(NULL);
+}
 
 void quicksort(int element_list[], int low, int high){
 	int pivot, value1, value2, temp;
@@ -209,73 +274,32 @@ int main(int argc, char *argv[]){
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-	for(int j=0; j<N; j++){
-        
-        int nzrangeOfColA = csc_col[j+1]-csc_col[j];
-        int colA[nzrangeOfColA];
-        // printf("\nj=%d",j);
-        // printf("\nnzrangeOfColA: %d \ncolA: ", nzrangeOfColA);
-        for(int y=csc_col[j]; y<csc_col[j+1]; y++){
-            colA[y-csc_col[j]] = csc_row[y];
-            // printf("%d ",csc_row[y]);
-        }
-        // printf("\n");
+	pthread_t *threads;
+    pthread_attr_t pthread_custom_attr;
 
-        for(int n=csc_col[j]; n<csc_col[j+1]; n++){
-            
-            int i = csc_row[n];
-            /*
-            ** Iterate all the non zero values of matrix A
-            ** A(i,j) !=  0 
-            */
-            // printf("\n(i,j)=(%d,%d)\n", i, j);
+    threads = (pthread_t *)malloc(N*sizeof(pthread_t));
+    pthread_attr_init(&pthread_custom_attr);
 
-            int nnzrangeOfRowA = csc_col[i+1]-csc_col[i];       
-            int rowA[nnzrangeOfRowA];
-            // printf("\nnnzrangeOfRowA: %d \nrowA: ", nnzrangeOfRowA);        
-            for(int x=csc_col[i]; x<csc_col[i+1]; x++){
-                rowA[x-csc_col[i]] = csc_row[x];
-                // printf("%d ",csc_row[x]);
-            }
-            // printf("\n");
-            
-        
-            // for(int z=0; z<nnzrangeOfRowA; z++){
-            //     for(int w=0; w<nzrangeOfColA; w++){
-            //         if(rowA[z]<colA[w]){
-            //             break;
-            //         }else if(rowA[z]=colA[w]){
-            //             c3[j]++;
-            //             printf("common");
-            //             break;
-            //         }
-            //     }
-            // }
-        
-            int common = 0;
-            int flag = 0;
-                for(int l=0; l<nnzrangeOfRowA; l++){
-                    int counter = 0;
-                    while((counter + flag) < nzrangeOfColA){
-                    if(rowA[l] < colA[counter+flag]){
-                        counter++;
-                        break;
-                    }else if(rowA[l] == colA[counter+flag]){
-                        common++;
-                        break;
-                    }else
-                        flag++;
-                }
-            }
-            c3[j] += common;
-            
-        }        
+    parm *p = (parm *)malloc(N*sizeof(parm));
+
+    for(int i=0; i<N; i++){
+        p[i].j = i;
+        p[i].csc_row = csc_row;
+        p[i].csc_col = csc_col;
+        p[i].c = 0;
+        pthread_create(&threads[i], &pthread_custom_attr, C, (void *)(p+i));
+    }
+
+    for(int i=0; i<N; i++){
+        pthread_join(threads[i],NULL);
+        c3[i] = p[i].c;
     }
 
     clock_gettime(CLOCK_MONOTONIC, &stop);
 
     free(csc_row);
     free(csc_col);
+    free(p);
 
     // printf("\nC3:\n");
     // for(int i=0; i<N; i++){
