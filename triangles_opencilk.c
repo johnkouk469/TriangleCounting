@@ -222,7 +222,7 @@ int main(int argc, char *argv[]){
         }
         // printf("\n");
 
-        for(int n=csc_col[j]; n<csc_col[j+1]; n++){
+        cilk_for(int n=csc_col[j]; n<csc_col[j+1]; n++){
             
             int i = csc_row[n];
             /*
@@ -255,21 +255,20 @@ int main(int argc, char *argv[]){
         
             int common = 0;
             int flag = 0;
-                for(int l=0; l<nnzrangeOfRowA; l++){
-                    int counter = 0;
-                    while((counter + flag) < nzrangeOfColA){
-                    if(rowA[l] < colA[counter+flag]){
-                        counter++;
-                        break;
-                    }else if(rowA[l] == colA[counter+flag]){
-                        common++;
-                        break;
-                    }else
-                        flag++;
+            for(int l=0; l<nnzrangeOfRowA; l++){
+                int counter = 0;
+                while((counter + flag) < nzrangeOfColA){
+                if(rowA[l] < colA[counter+flag]){
+                    counter++;
+                    break;
+                }else if(rowA[l] == colA[counter+flag]){
+                    common++;
+                    break;
+                }else
+                    flag++;
                 }
             }
-            c3[j] += common;
-            
+            c3[j] += common;            
         }        
     }
 
@@ -278,13 +277,13 @@ int main(int argc, char *argv[]){
     free(csc_row);
     free(csc_col);
 
-    printf("\nC3:\n");
-    for(int i=0; i<N; i++){
-        if(c3[i]%2 != 0)
-            c3[i]++;
-        c3[i] = c3[i]/2;
-        printf("%d %d\n", i, c3[i]);
-    }
+    // printf("\nC3:\n");
+    // for(int i=0; i<N; i++){
+    //     if(c3[i]%2 != 0)
+    //         c3[i]++;
+    //     c3[i] = c3[i]/2;
+    //     printf("%d %d\n", i, c3[i]);
+    // }
 
     duration.tv_sec = stop.tv_sec - start.tv_sec;
     duration.tv_nsec = stop.tv_nsec - start.tv_nsec;
