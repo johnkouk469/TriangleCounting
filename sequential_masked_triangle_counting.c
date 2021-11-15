@@ -277,13 +277,13 @@ int main(int argc, char *argv[]){
     free(csc_row);
     free(csc_col);
 
-    printf("\nC3:\n");
-    for(int i=0; i<N; i++){
-        if(c3[i]%2 != 0)
-            c3[i]++;
-        c3[i] = c3[i]/2;
-        printf("%d %d\n", i, c3[i]);
-    }
+    // printf("\nC3:\n");
+    // for(int i=0; i<N; i++){
+    //     if(c3[i]%2 != 0)
+    //         c3[i]++;
+    //     c3[i] = c3[i]/2;
+    //     printf("%d %d\n", i, c3[i]);
+    // }
 
     duration.tv_sec = stop.tv_sec - start.tv_sec;
     duration.tv_nsec = stop.tv_nsec - start.tv_nsec;
