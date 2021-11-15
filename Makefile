@@ -13,7 +13,7 @@ triangles_opencilk:
 triangles_openmp:
 	$(CC) $(FLAGS) triangles_openmp.c mmio.c -o triangles_openmp -fopenmp
 
-all: sequential_masked_triangle_counting triangles_opencilk
+all: sequential_masked_triangle_counting triangles_opencilk triangles_openmp
 
 clean:
 	rm -f sequential_masked_triangle_counting triangles_opencilk triangles_openmp
