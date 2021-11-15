@@ -10,7 +10,10 @@ sequential_masked_triangle_counting:
 triangles_opencilk:
 	$(CILKCC) $(FLAGS) triangles_opencilk.c mmio.c -o triangles_opencilk -fcilkplus
 
+triangles_openmp:
+	$(CC) $(FLAGS) triangles_openmp.c mmio.c -o triangles_openmp -fopenmp
+
 all: sequential_masked_triangle_counting triangles_opencilk
 
 clean:
-	rm -f sequential_masked_triangle_counting triangles_opencilk
+	rm -f sequential_masked_triangle_counting triangles_opencilk triangles_openmp
