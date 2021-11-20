@@ -1,13 +1,3 @@
-/*
-** v4.c -- version 4 of Vertexwise triangle counting
-**
-** Loading sparse adjacency matrix using the Matrix Market format
-** and converting the martix from COO to CSC
-**
-** Representing graph in CSC format
-**
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -30,13 +20,9 @@ void *C(void *arg) {
     int j = p->j;
     int nzrangeOfColA = col[j+1]-col[j];
     int colA[nzrangeOfColA];
-    // printf("\nj=%d",p->j);
-    // printf("\nnzrangeOfColA: %d \ncolA: ", nzrangeOfColA);
     for(int y=col[j]; y<col[(j)+1]; y++){
         colA[y-col[j]] = row[y];
-        // printf("%d ",row[y]);
     }
-    // printf("\n");
 
     for(int n=col[j]; n<col[(j)+1]; n++){
             
@@ -44,17 +30,12 @@ void *C(void *arg) {
         
         // Iterate all the non zero values of matrix A
         // A(i,j) !=  0 
-        
-        // printf("\n(i,j)=(%d,%d)\n", i, j);
 
         int nnzrangeOfRowA = col[i+1]-col[i];       
-        int rowA[nnzrangeOfRowA];
-        // printf("\nnnzrangeOfRowA: %d \nrowA: ", nnzrangeOfRowA);        
+        int rowA[nnzrangeOfRowA];     
         for(int x=col[i]; x<col[i+1]; x++){
             rowA[x-col[i]] = row[x];
-            // printf("%d ",row[x]);
         }
-        // printf("\n");
           
         int common = 0;
         int flag = 0;
@@ -73,8 +54,6 @@ void *C(void *arg) {
         }
         p->c += common;        
     }
-
-    // printf("Hello from node %d\n", p->j);
     pthread_exit(NULL);
 }
 
@@ -301,13 +280,13 @@ int main(int argc, char *argv[]){
     free(csc_col);
     free(p);
 
-    // printf("\nC3:\n");
-    // for(int i=0; i<N; i++){
-    //     if(c3[i]%2 != 0)
-    //         c3[i]++;
-    //     c3[i] = c3[i]/2;
-    //     printf("%d %d\n", i, c3[i]);
-    // }
+    printf("\nC3:\n");
+    for(int i=0; i<N; i++){
+        if(c3[i]%2 != 0)
+            c3[i]++;
+        c3[i] = c3[i]/2;
+        printf("%d %d\n", i, c3[i]);
+    }
 
     duration.tv_sec = stop.tv_sec - start.tv_sec;
     duration.tv_nsec = stop.tv_nsec - start.tv_nsec;
@@ -320,7 +299,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 
-    printf("The prossess took %ld seconds and %ld nanoseconds", duration.tv_sec, duration.tv_nsec);
+    printf("The process took %ld seconds and %ld nanoseconds", duration.tv_sec, duration.tv_nsec);
 
 
 	return 0;
